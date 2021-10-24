@@ -27,7 +27,7 @@ public class EchoBot extends ActivityHandler {
     @Override
     protected CompletableFuture<Void> onMessageActivity(TurnContext turnContext) {
         return turnContext.sendActivity(
-            MessageFactory.text("Echo: " + turnContext.getActivity().getText())
+            MessageFactory.text("You said: " + turnContext.getActivity().getText())
         ).thenApply(sendResult -> null);
     }
 
