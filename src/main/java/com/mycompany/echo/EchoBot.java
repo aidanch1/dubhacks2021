@@ -15,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 
 import com.microsoft.bot.ai.qna.QnAMaker;
 import com.microsoft.bot.ai.qna.QnAMakerEndpoint;
-import com.microsoft.bot.ai.qna.QnAMakerOptions;
 import com.microsoft.bot.integration.Configuration;
 
 /**
