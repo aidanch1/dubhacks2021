@@ -13,6 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.microsoft.bot.ai.qna.QnAMaker;
+import com.microsoft.bot.ai.qna.QnAMakerEndpoint;
+import com.microsoft.bot.ai.qna.QnAMakerOptions;
+import com.microsoft.bot.integration.Configuration;
+
 /**
  * This class implements the functionality of the Bot.
  *
@@ -24,11 +29,24 @@ import java.util.concurrent.CompletableFuture;
  */
 public class EchoBot extends ActivityHandler {
 
+    QnAMaker qnaMaker;
+
+    public EchoBot(Configuration configuration) {
+        QnAMakerEndpoint qnAMakerEndpoint = new QnAMakerEndpoint();
+        qnAMakerEndpoint.setKnowledgeBaseId(configuration.getProperty("QnAKnowledgebaseId"));
+        qnAMakerEndpoint.setEndpointKey(configuration.getProperty("QnAEndpointKey"));
+        qnAMakerEndpoint.setHost(configuration.getProperty("QnAEndpointHostName"));
+
+        qnaMaker = new QnAMaker(qnAMakerEndpoint, null);
+
+    }
+
     @Override
     protected CompletableFuture<Void> onMessageActivity(TurnContext turnContext) {
-        return turnContext.sendActivity(
-            MessageFactory.text("You said: " + turnContext.getActivity().getText())
-        ).thenApply(sendResult -> null);
+        return turnContext.sendActivity(MessageFactory.text("Echo: " + turnContext.getActivity().getText()))
+            .thenCompose(sendResult -> {
+                return accessQnAMaker(turnContext);
+            });
     }
 
     @Override
@@ -42,5 +60,19 @@ public class EchoBot extends ActivityHandler {
                     .equals(member.getId(), turnContext.getActivity().getRecipient().getId())
             ).map(channel -> turnContext.sendActivity(MessageFactory.text("HAHA")))
             .collect(CompletableFutures.toFutureList()).thenApply(resourceResponses -> null);
+    }
+
+    private CompletableFuture<Void> accessQnAMaker(TurnContext turnContext) {
+        return qnaMaker.getAnswers(turnContext, null).thenCompose(results -> {
+            if (results.length > 0) {
+                return turnContext
+                    .sendActivity(MessageFactory.text(String.format("QnA Maker Returned: %s" + results[0].getAnswer())))
+                    .thenApply(result -> null);
+            } else {
+                return turnContext
+                    .sendActivity(MessageFactory.text("Sorry, could not find an answer in the knowledge base."))
+                    .thenApply(result -> null);
+            }
+        });
     }
 }

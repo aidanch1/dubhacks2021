@@ -48,8 +48,8 @@ public class Application extends BotDependencyConfiguration {
      * @return The Bot implementation for this application.
      */
     @Bean
-    public Bot getBot() {
-        return new EchoBot();
+    public Bot getBot(Configuration configuration) {
+        return new EchoBot(configuration);
     }
 
     /**
