@@ -40,7 +40,7 @@ public class EchoBot extends ActivityHandler {
             .filter(
                 member -> !StringUtils
                     .equals(member.getId(), turnContext.getActivity().getRecipient().getId())
-            ).map(channel -> turnContext.sendActivity(MessageFactory.text("Hello and welcome!")))
+            ).map(channel -> turnContext.sendActivity(MessageFactory.text("HAHA")))
             .collect(CompletableFutures.toFutureList()).thenApply(resourceResponses -> null);
     }
 }
